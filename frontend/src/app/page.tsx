@@ -12,7 +12,7 @@ const ROLES = [
     key: "merchant",
     title: "Merchants",
     icon: "🏬",
-    points: ["List seeds, fertilizers & equipment", "Receive & manage farmer orders", "Track inventory and sales"],
+    points: ["List seeds, Fertilizers & Equipment", "Receive & manage farmer orders", "Track inventory and sales"],
   },
   {
     key: "customer",

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "KisanSetu - Direct Farm to Table",
   description:
-    "KisanSetu connects farmers, merchants, customers and delivery partners on one platform for fresh, fair farm trade.",
+    "KisanSetu connects farmers, merchants, customers and delivery partners on one platform for fresh, Fair Farm Trade.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

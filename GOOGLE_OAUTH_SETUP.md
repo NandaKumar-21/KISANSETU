@@ -158,7 +158,7 @@ For new users signing up with Google:
 ### Google Login Not Working
 - Verify Supabase Google provider is enabled
 - Check Google Console redirect URIs match Supabase callback URL
-- Ensure Supabase URL and keys are correct in frontend `.env.local`
+- Ensure Supabase URL and keys are correct in Frontend `.env.local`
 
 ### Account Not Created
 - Check backend logs for synchronization errors
