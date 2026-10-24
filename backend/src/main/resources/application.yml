@@ -1,0 +1,89 @@
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: kisansetu-backend
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        format_sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+
+kisansetu:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+
+  supabase:
+    url: ${SUPABASE_URL}
+    anon-key: ${SUPABASE_ANON_KEY}
+    service-role-key: ${SUPABASE_SERVICE_ROLE_KEY}
+    jwt-secret: ${SUPABASE_JWT_SECRET}
+    jwt-issuer: ${SUPABASE_JWT_ISSUER}
+    jwt-jwk-uri: ${SUPABASE_JWT_JWK_URI}
+
+  ai:
+    provider: ${AI_PROVIDER:groq}
+    api-key: ${AI_API_KEY}
+    model: ${AI_MODEL:openai/gpt-oss-120b}
+    base-url: ${AI_BASE_URL:https://api.groq.com/openai/v1}
+    timeout-seconds: ${AI_TIMEOUT_SECONDS:60}
+    max-tokens: ${AI_MAX_TOKENS:1024}
+
+  weather:
+    provider: ${WEATHER_PROVIDER:open-meteo}
+    base-url: ${WEATHER_BASE_URL:https://api.open-meteo.com/v1}
+    api-key: ${WEATHER_API_KEY:}
+
+  storage:
+    bucket: ${STORAGE_BUCKET:kisansetu}
+    public-base-url: ${STORAGE_PUBLIC_BASE_URL:}
+    bucket-url: ${STORAGE_BUCKET_URL:}
+
+  logistics:
+    earning-percentage: ${LOGISTICS_EARNING_PERCENTAGE:5.0}
+    default-city: ${DEFAULT_CITY:}
+
+  maps:
+    provider: ${MAP_PROVIDER:osm}
+    api-key: ${MAP_API_KEY:}
+
+logging:
+  level:
+    com.kisansetu: INFO
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"
