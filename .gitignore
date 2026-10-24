@@ -63,3 +63,9 @@ logs/
 *.temp
 *.swp
 .devin/
+
+# ==============================
+# Private judge-prep assets (never commit)
+# ==============================
+KisanSetu_Video_Prompts_PRIVATE_NOT_FOR_GITHUB.md
+*.pptx
