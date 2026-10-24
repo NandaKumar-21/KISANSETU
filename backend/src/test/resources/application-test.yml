@@ -1,0 +1,48 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kisansetu_test
+    username: postgres
+    password: root
+    hikari:
+      maximum-pool-size: 5
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+kisansetu:
+  cors:
+    allowed-origins: http://localhost:3000
+  supabase:
+    url: https://your-project.supabase.co
+    anon-key: test-anon-key
+    service-role-key: test-service-role-key
+    jwt-secret: test-secret-0123456789-abcdefghij
+    jwt-issuer: https://your-project.supabase.co/auth/v1
+    jwt-jwk-uri: https://your-project.supabase.co/auth/v1/.well-known/jwks.json
+  ai:
+    provider: groq
+    api-key: ""
+    model: meta-llama/llama-4-scout-17b-16e-instruct
+    base-url: https://api.groq.com/openai/v1
+    timeout-seconds: 5
+    max-tokens: 256
+  weather:
+    provider: open-meteo
+    base-url: https://api.open-meteo.com/v1
+    api-key: ""
+  storage:
+    bucket: kisansetu
+    public-base-url: ""
+    bucket-url: ""
+  logistics:
+    earning-percentage: 5.0
+    default-city: Kolhapur
+  maps:
+    provider: osm
+    api-key: ""
+
+logging:
+  level:
+    com.kisansetu: INFO
+    org.hibernate.SQL: WARN
