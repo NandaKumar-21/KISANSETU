@@ -2,11 +2,19 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import type { SignInWithOAuthCredentials } from "@supabase/supabase-js";
 import { useAuth } from "@/lib/auth";
 import { roleHome } from "@/lib/types";
 import { Logo } from "@/components/Logo";
 import { GoogleButton } from "@/components/GoogleButton";
 import { api } from "@/lib/api";
+
+type GoogleOAuthOptions = NonNullable<SignInWithOAuthCredentials["options"]> & {
+  // Supabase forwards unknown options through to the provider; the installed
+  // SDK's type doesn't model `data`, but the OAuth flow relies on it to seed
+  // user metadata (role, auth_provider) for brand-new Google sign-ups.
+  data?: Record<string, string>;
+};
 
 const ROLES = [
   { value: "farmer", label: "Farmer", icon: "🧑‍🌾" },
@@ -62,6 +70,7 @@ function AuthForm() {
     const errorDescription = search.get("error_description");
 
     if (error) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reads an OAuth error off the URL on mount; synchronizing with the browser's external location state
       setError(errorDescription || "Google authentication failed");
       setGoogleLoading(false);
       // Clean up URL by removing error params
@@ -185,7 +194,7 @@ function AuthForm() {
         localStorage.removeItem('pending_signup_role');
       }
 
-      const authOptions: any = {
+      const authOptions: GoogleOAuthOptions = {
         redirectTo: `${window.location.origin}/auth`,
         queryParams: {
           access_type: 'offline',

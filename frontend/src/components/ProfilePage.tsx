@@ -33,6 +33,7 @@ export function ProfilePage({ role }: { role: string }) {
 
   useEffect(() => {
     if (user?.profile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- copies the auth context's profile into local editable form state once it resolves asynchronously after mount
       setFormData({
         fullName: user.profile.fullName || "",
         phone: user.profile.phone || "",

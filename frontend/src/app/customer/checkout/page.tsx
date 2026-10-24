@@ -64,6 +64,7 @@ export default function CustomerCheckoutPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetches checkout data on mount; a sanctioned effect use (react.dev/learn/synchronizing-with-effects#fetching-data)
     void load();
   }, [load]);
 

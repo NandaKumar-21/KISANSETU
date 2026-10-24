@@ -64,6 +64,7 @@ export default function MerchantDetailPage() {
   }, [merchantId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetches merchant + products on mount; a sanctioned effect use (react.dev/learn/synchronizing-with-effects#fetching-data)
     loadMerchant();
     loadProducts();
   }, [loadMerchant, loadProducts]);

@@ -128,7 +128,7 @@ export default function AiChatPage() {
                 <span className="text-5xl">💬</span>
                 <p className="font-semibold text-ink">Ask your Kisan Assistant anything</p>
                 <p className="max-w-sm text-sm text-muted">
-                  "How to control aphids on chillies?", "Best time to sow wheat?", "Why are my tomato leaves yellowing?"
+                  &quot;How to control aphids on chillies?&quot;, &quot;Best time to sow wheat?&quot;, &quot;Why are my tomato leaves yellowing?&quot;
                 </p>
                 <button
                   onClick={startNew}

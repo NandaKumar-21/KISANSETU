@@ -39,6 +39,7 @@ export default function CustomerWishlistPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetches the wishlist on mount; a sanctioned effect use (react.dev/learn/synchronizing-with-effects#fetching-data)
     void load();
   }, [load]);
 

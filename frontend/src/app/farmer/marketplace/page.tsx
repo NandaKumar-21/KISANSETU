@@ -74,10 +74,12 @@ export default function FarmerMarketplacePage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- requests the browser's geolocation on mount; synchronizing with an external API
     getCurrentLocation();
   }, [getCurrentLocation]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetches nearby merchants on mount; a sanctioned effect use (react.dev/learn/synchronizing-with-effects#fetching-data)
     load();
   }, [load]);
 

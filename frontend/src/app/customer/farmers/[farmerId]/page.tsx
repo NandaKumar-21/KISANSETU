@@ -69,6 +69,7 @@ export default function FarmerDetailPage() {
   }, [farmerId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetches farmer + listings on mount; a sanctioned effect use (react.dev/learn/synchronizing-with-effects#fetching-data)
     loadFarmer();
     loadListings();
   }, [loadFarmer, loadListings]);

@@ -42,9 +42,9 @@ class AiVisionServiceTest {
     @Test
     void analyzeImage_buildsResultFromValidResponse() {
         when(aiProvider.chatWithImage(any(), any()))
-                .thenReturn("{\"isPlant\": true}")
                 .thenReturn("""
                         {
+                          "isPlant": true,
                           "disease": "Late Blight",
                           "disease_name": "Late Blight",
                           "confidence": 82,
@@ -75,8 +75,7 @@ class AiVisionServiceTest {
     @Test
     void analyzeImage_lowConfidenceRejected() {
         when(aiProvider.chatWithImage(any(), any()))
-                .thenReturn("{\"isPlant\": true}")
-                .thenReturn("{\"disease\": \"Unknown\", \"disease_name\": \"Unknown\", \"confidence\": 40}");
+                .thenReturn("{\"isPlant\": true, \"disease\": \"Unknown\", \"disease_name\": \"Unknown\", \"confidence\": 40}");
 
         ApiException ex = assertThrows(ApiException.class, () -> service.analyzeImage("aGVsbG8="));
         assertEquals(400, ex.getStatus());
@@ -85,8 +84,7 @@ class AiVisionServiceTest {
     @Test
     void analyzeImage_bannedWordRejected() {
         when(aiProvider.chatWithImage(any(), any()))
-                .thenReturn("{\"isPlant\": true}")
-                .thenReturn("{\"disease\": \"Human skin irritation\", \"disease_name\": \"Human skin irritation\", \"confidence\": 90}");
+                .thenReturn("{\"isPlant\": true, \"disease\": \"Human skin irritation\", \"disease_name\": \"Human skin irritation\", \"confidence\": 90}");
 
         ApiException ex = assertThrows(ApiException.class, () -> service.analyzeImage("aGVsbG8="));
         assertEquals(400, ex.getStatus());
