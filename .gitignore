@@ -1,0 +1,65 @@
+# ==============================
+# Environment & Secrets
+# ==============================
+.env
+.env.*
+!.env.example
+
+# ==============================
+# Spring Boot / Maven
+# ==============================
+backend/target/
+**/target/
+
+# Spring local configuration
+# application.yml is safe to commit because it contains
+# environment-variable references, not actual secrets.
+
+# ==============================
+# Node / Next.js
+# ==============================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Environment files
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# ==============================
+# IDE
+# ==============================
+.idea/
+.vscode/
+*.iml
+
+# ==============================
+# OS
+# ==============================
+.DS_Store
+Thumbs.db
+
+# ==============================
+# Logs
+# ==============================
+*.log
+logs/
+
+# ==============================
+# Build artifacts
+# ==============================
+*.class
+*.jar
+*.war
+*.ear
+
+# ==============================
+# Temporary files
+# ==============================
+*.tmp
+*.temp
+*.swp
+.devin/
