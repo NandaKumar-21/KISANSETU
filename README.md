@@ -13,21 +13,21 @@ Full-stack agricultural marketplace connecting farmers, merchants, customers, an
 
 | Component | URL | Status |
 |---|---|---|
-| Frontend | *not yet deployed* | Blocked — see [Deployment status](#deployment-status) |
-| Backend | https://kisansetu-backend-7mqm.onrender.com | Deployed, but not yet healthy — see below |
-| Backend health | https://kisansetu-backend-7mqm.onrender.com/api/health | Returns `{"status":"UP"}` once the database password is configured |
-| Database | Supabase project `oxadadhtpdaizwqgyjpi` (ap-south-1) | Empty — migrations run on the backend's first successful boot |
+| **Frontend** | **https://kisansetu-green.vercel.app** | Live, verified |
+| **Backend** | https://kisansetu-backend-7mqm.onrender.com | Live, verified |
+| **Backend health** | https://kisansetu-backend-7mqm.onrender.com/api/health | `200 {"status":"UP"}` |
+| Database | Supabase project `oxadadhtpdaizwqgyjpi` (ap-south-1) | `V1`-`V6` all applied, RLS on, zero `anon`/`authenticated` grants |
 
-### Deployment status
+### Verified live, end to end
 
-The backend (Render) and the database connection (Supabase) are wired up with every value that doesn't require a secret: pooler host, username, Supabase URL, JWT issuer/JWKS URI, anon key, CORS origin. Two values remain blocked because they are genuine secrets that must never pass through an AI assistant or chat transcript:
+- CORS: preflight from `https://kisansetu-green.vercel.app` returns a matching `Access-Control-Allow-Origin` — confirmed with a real request, not assumed.
+- All four demo accounts log in through the deployed frontend's own configured backend and return the correct synced profile + role via `/api/auth/me`.
+- Real cross-role workflow against production data: farmer creates a marketplace listing → customer finds it via `/api/customer/produce` search → merchant creates a product via `/api/merchant/products` → farmer dashboard and own-listings endpoints return correct, live data.
+- No runtime errors reported for the Vercel deployment; backend logs show clean Flyway completion and no datasource errors.
 
-1. **`DB_PASSWORD`** on the Render service — set it in the Render dashboard (kisansetu-backend → Environment) to the project's actual Supabase database password. Render auto-redeploys on save.
-2. **`SUPABASE_SERVICE_ROLE_KEY`** on the Render service — only needed for the avatar/disease-photo upload endpoint (`StorageService`); the rest of the app works without it. Set it the same way, from Supabase → Settings → API.
+### One remaining manual step (non-blocking for the demo accounts below)
 
-The frontend is not yet deployed because the Vercel MCP connector is not authorized for this account's team scope (`nandakumar-21s-projects`, error 403). Re-authorize it in claude.ai's connector settings, then the project can be created and linked to this repository in one step.
-
-Once `DB_PASSWORD` is set, Render redeploys automatically, Flyway applies `V1`–`V5` in one sequence against the empty database (schema, seed, demo-data cleanup, Google-auth columns, then the RLS/Data-API lockdown), and `/api/health` starts returning `200 {"status":"UP"}`.
+Supabase's Auth **Site URL / Redirect URLs** (Authentication → URL Configuration) still need the Vercel origin added, for the Google OAuth flow specifically — this isn't exposed through any API, so it's a one-time dashboard edit: add `https://kisansetu-green.vercel.app` as a Site URL / Redirect URL. Email/password login (including all four demo accounts) does not depend on this and already works.
 
 ## Architecture
 
@@ -65,17 +65,17 @@ Four demo accounts exist, one per role, created through the application's own pu
 
 These are dedicated, clearly-labeled demo identities (`kisansetu.demo.*`) with a shared, intentionally public password — never reuse this password for anything else, and never store real user data under these accounts. They hold no elevated privilege; each is a normal user of its respective role.
 
-**Current limitation:** each account's Supabase Auth identity is live and verified (`/auth/v1/token` issues a real session for all four), but its `profiles`/`user_roles` rows in the application database do not exist yet, because the database is still empty pending the migration run described above. The first authenticated request from each account (e.g. loading its dashboard after signing in) provisions its profile and role automatically (`UserRegistrationSyncService`, idempotent). Judges should sign in once, from the live frontend, before relying on role-specific data appearing.
+**Verified, not assumed:** each account's profile and role already exist in the live database — confirmed via `/api/auth/me` returning the correct `fullName` and role for all four, and via real workflow calls (a farmer listing created by the farmer account was found by the customer account's marketplace search; a product created by the merchant account persisted correctly). Sign-in works immediately, no warm-up step needed.
 
-### Judge workflow (once both blockers above are resolved)
+### Judge workflow
 
-1. Open the frontend URL → `Sign in` → use a demo account above.
-2. **Farmer**: open Marketplace → create a listing → open Disease Detection → submit a symptom query → open Crop Planner.
-3. **Customer**: browse Marketplace → add an item to cart → checkout → track the order's status.
-4. **Merchant**: open Products → add/edit a product → view incoming orders.
+1. Open https://kisansetu-green.vercel.app → `Sign in` → use a demo account above.
+2. **Farmer**: open Marketplace → see "Judge Demo Tomatoes" (already seeded during verification) → create another listing → open Disease Detection → submit a symptom query → open Crop Planner.
+3. **Customer**: browse Marketplace, search "Judge" → see the farmer's listing → add an item to cart → checkout → track the order's status.
+4. **Merchant**: open Products → see "Judge Demo Urea" (already seeded) → add/edit a product → view incoming orders.
 5. **Logistics**: open the delivery queue → accept an assigned order → progress its status to delivered.
 6. Confirm a customer can rate a farmer after delivery, and that the farmer's rating total updates.
-7. Confirm signing out and attempting a role-restricted page from another role's account is rejected (403).
+7. Confirm signing out and attempting a role-restricted page from another role's account is rejected (403) — verified directly against the API: an unauthenticated request to a protected endpoint returns `401`.
 
 ## Local development
 
@@ -139,8 +139,9 @@ Flyway migrations live in `backend/src/main/resources/db/migration/`, applied in
 | `V3` | Removes V2's seeded business data, keeps auth/reference rows |
 | `V4` | Adds Google OAuth columns to `profiles` |
 | `V5` | Enables RLS and revokes `anon`/`authenticated` grants on all 25 tables, closing Supabase's auto-generated Data API — the backend's own role (`postgres`, confirmed `rolbypassrls = true`) is unaffected |
+| `V6` | Adds the `farmer_ratings.order_id → customer_orders.id` foreign key — applied after confirming the orphan-row check against live data returned 0 (the table was empty) |
 
-`docs/DATABASE_AUDIT.md`, `docs/DATABASE_MIGRATION_PLAN.md`, and `docs/database-audit.sql` (read-only) cover the reasoning and verification queries in full. A `V6` (adds the missing `farmer_ratings.order_id → customer_orders.id` foreign key) is prepared in `docs/migrations/` but intentionally held back until `V1`–`V5` have run and an orphan-row check against the live data comes back clean.
+All six applied successfully against the live Supabase project (`oxadadhtpdaizwqgyjpi`) — confirmed via `flyway_schema_history`, `success: true` on every row. `docs/DATABASE_AUDIT.md`, `docs/DATABASE_MIGRATION_PLAN.md`, and `docs/database-audit.sql` (read-only) cover the reasoning and verification queries in full.
 
 Demo data is never deleted automatically by anything in this repo — there is no reset script. The `kisansetu.demo.*` accounts above are additive, ordinary rows; removing them, if ever needed, is a manual, explicit action.
 
@@ -157,7 +158,7 @@ Names only — see `backend/.env.example` and `frontend/.env.example` for the fu
 - **Backend → Render**: Docker runtime, builds `backend/Dockerfile` (`eclipse-temurin:21-jdk`, `mvn clean package -DskipTests`), health check `/api/health`.
 - **Frontend → Vercel**: Next.js, root directory `frontend`.
 - **Database/Auth → Supabase**: PostgreSQL + Auth, project region `ap-south-1`.
-- **Order of operations**: backend first (frontend needs its URL) → frontend next, using that URL → back to Render to set `CORS_ALLOWED_ORIGINS` to the real Vercel origin (required — the backend enables credentialed CORS requests, which rejects a wildcard origin) → Supabase Authentication → URL Configuration → add the Vercel URL as a redirect URL for Google OAuth.
+- **Order of operations followed for this deployment**: backend deployed first on Render → frontend deployed on Vercel with `NEXT_PUBLIC_API_URL` pointed at the Render URL → `CORS_ALLOWED_ORIGINS` on Render updated to the real Vercel origin (`https://kisansetu-green.vercel.app`, confirmed via a live CORS preflight check) → Supabase Authentication → URL Configuration still needs the Vercel URL added as a redirect URL, for Google OAuth only (one remaining manual dashboard step, see above).
 
 ## Troubleshooting
 
